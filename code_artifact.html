@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>임베디드 개발자 포트폴리오 | [인선미]</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0ea5e9', // Sky 500
+                        secondary: '#10b981', // Emerald 500
+                        dark: '#0f172a', // Slate 900
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+
+        /* 캔버스 배경 */
+        #network-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* 컨텐츠 z-index */
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 타이핑 커서 깜빡임 */
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background-color: #0ea5e9;
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* 스크롤 등장 애니메이션 클래스 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 그라데이션 텍스트 */
+        .text-gradient {
+            background: linear-gradient(to right, #0ea5e9, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-primary selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 font-bold text-2xl tracking-tighter">
+                    <a href="#home" class="text-white hover:text-primary transition-colors">DEV<span class="text-primary">.</span>[인선미]</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#about" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">About</a>
+                        <a href="#skills" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Skills</a>
+                        <a href="#experience" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Experience</a>
+                        <a href="#contact" class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors">Contact Me</a>
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900/95 backdrop-blur-md">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#about" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="#skills" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Skills</a>
+                <a href="#experience" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Experience</a>
+                <a href="#contact" class="text-primary font-bold block px-3 py-2 rounded-md text-base">Contact Me</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <!-- Interactive Canvas Background for Tech Vibe -->
+        <canvas id="network-canvas"></canvas>
+        
+        <div class="content-wrapper max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-primary font-medium tracking-wide mb-4 reveal">Hello, World!</p>
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight reveal" style="transition-delay: 100ms;">
+                저는 <br class="md:hidden" />
+                <span id="typing-text" class="text-gradient"></span><span class="typing-cursor"></span><br />
+                개발자입니다.
+            </h1>
+            <p class="mt-4 text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-10 reveal" style="transition-delay: 200ms;">
+                임베디드 시스템, 로봇 제어, 그리고 지식의 나눔.<br>
+                하드웨어와 소프트웨어의 경계를 허물며 새로운 가치를 창출합니다.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 reveal" style="transition-delay: 300ms;">
+                <a href="#experience" class="group relative overflow-hidden px-8 py-4 bg-slate-800 text-white font-bold rounded-full border-2 border-primary/50 hover:border-primary transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-primary/50">
+                    <!-- 배경 그라데이션 효과를 위한 절대 위치 요소 -->
+                    <span class="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <i data-lucide="briefcase" class="w-5 h-5 group-hover:scale-110 transition-transform duration-300 relative z-10"></i>
+                    <span class="relative z-10">프로젝트 보기</span>
+                </a>
+                <a href="#contact" class="px-8 py-4 bg-transparent border border-gray-600 text-white font-semibold rounded-full hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="mail" class="w-5 h-5"></i> 문의하기
+                </a>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce opacity-50">
+            <a href="#about" class="text-white">
+                <i data-lucide="chevron-down" class="w-8 h-8"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm text-gray-300 mb-6">
+                        <i data-lucide="user" class="w-4 h-4 text-primary"></i> About Me
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">로봇의 움직임을 설계하는<br><span class="text-gradient">시스템 아키텍트</span></h2>
+                    <p class="text-gray-400 text-lg leading-relaxed mb-6">
+                        반도체 칩에서부터 거대한 로봇 팔이 움직이기까지, 그 모든 과정을 코드로 제어하는 임베디드 소프트웨어에 매력을 느껴 개발자의 길을 걷고 있습니다.
+                    </p>
+                    <p class="text-gray-400 text-lg leading-relaxed mb-8">
+                        다년간의 실무 개발 경험을 바탕으로, 현재는 <strong>기술 컨설팅</strong>과 <strong>전문 강의</strong>를 통해 현장의 문제 해결을 돕고 후학을 양성하는 데 힘쓰고 있습니다. 저의 가장 큰 관심사는 정밀하고 효율적인 <strong>로봇 제어(Robot Control)</strong> 시스템을 구축하는 것입니다.
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                        <div>
+                            <h4 class="text-4xl font-bold text-white mb-2">5+</h4>
+                            <p class="text-sm text-gray-400">Years of Experience</p>
+                        </div>
+                        <div>
+                            <h4 class="text-4xl font-bold text-white mb-2">20+</h4>
+                            <p class="text-sm text-gray-400">Completed Projects</p>
+                        </div>
+                        <div>
+                            <h4 class="text-4xl font-bold text-white mb-2">100+</h4>
+                            <p class="text-sm text-gray-400">Students Taught</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative reveal h-full min-h-[400px] rounded-2xl overflow-hidden bg-slate-900 border border-slate-700 flex items-center justify-center group">
+                    <!-- Tech Illustration using Icons -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
+                    <div class="relative z-10 grid grid-cols-2 gap-8 p-8">
+                        <div class="flex flex-col items-center justify-center p-6 bg-slate-800 rounded-xl border border-slate-700 shadow-xl group-hover:-translate-y-2 transition-transform duration-300">
+                            <i data-lucide="cpu" class="w-12 h-12 text-primary mb-3"></i>
+                            <span class="font-medium">Embedded</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-6 bg-slate-800 rounded-xl border border-slate-700 shadow-xl group-hover:translate-y-2 transition-transform duration-300">
+                            <i data-lucide="bot" class="w-12 h-12 text-secondary mb-3"></i>
+                            <span class="font-medium">Robotics</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-6 bg-slate-800 rounded-xl border border-slate-700 shadow-xl group-hover:-translate-y-2 transition-transform duration-300">
+                            <i data-lucide="presentation" class="w-12 h-12 text-blue-400 mb-3"></i>
+                            <span class="font-medium">Lecture</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-6 bg-slate-800 rounded-xl border border-slate-700 shadow-xl group-hover:translate-y-2 transition-transform duration-300">
+                            <i data-lucide="lightbulb" class="w-12 h-12 text-yellow-400 mb-3"></i>
+                            <span class="font-medium">Consulting</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Technical <span class="text-gradient">Skills</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">하드웨어 제어부터 시스템 아키텍처 설계, 그리고 지식 전달까지.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Skill Card 1 -->
+                <div class="bg-slate-800/80 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-primary/50 transition-colors reveal">
+                    <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="microchip" class="w-6 h-6 text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-white">Embedded Systems</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">C / C++</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">FreeRTOS</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">ARM Cortex-M</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">STM32 / ESP32</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Firmware Arch.</span>
+                    </div>
+                </div>
+
+                <!-- Skill Card 2 -->
+                <div class="bg-slate-800/80 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-secondary/50 transition-colors reveal" style="transition-delay: 100ms;">
+                    <div class="w-12 h-12 bg-secondary/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="bot" class="w-6 h-6 text-secondary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-white">Robot Control</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">ROS / ROS2</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">PID Control</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Motor Drivers</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Kinematics</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Sensor Fusion</span>
+                    </div>
+                </div>
+
+                <!-- Skill Card 3 -->
+                <div class="bg-slate-800/80 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-blue-400/50 transition-colors reveal" style="transition-delay: 200ms;">
+                    <div class="w-12 h-12 bg-blue-400/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="users" class="w-6 h-6 text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-white">Consulting & Teaching</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Tech Consulting</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Curriculum Design</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Mentoring</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Code Review</span>
+                        <span class="px-3 py-1 bg-slate-900 rounded-md text-sm text-gray-300 border border-slate-700">Troubleshooting</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience & Projects Section -->
+    <section id="experience" class="py-24 bg-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Experience & <span class="text-gradient">Projects</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">개발, 컨설팅, 강의 분야에서의 주요 경험들입니다.</p>
+            </div>
+
+            <div class="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-600 before:to-transparent">
+                
+                <!-- Timeline Item 1 -->
+                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active reveal">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 bg-primary text-slate-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                    </div>
+                    <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-xl text-white">6축 다관절 로봇 제어 시스템 개발</h3>
+                            <span class="text-sm font-medium text-primary">2023 - 현재</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">스마트팩토리 자동화를 위한 협동 로봇 모션 제어 알고리즘 설계 및 구현.</p>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">ROS2</span>
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">C++</span>
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">Kinematics</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 2 -->
+                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active reveal">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 bg-secondary text-slate-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10">
+                        <i data-lucide="presentation" class="w-4 h-4"></i>
+                    </div>
+                    <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-xl text-white">K-Digital 임베디드 부트캠프 메인 강사</h3>
+                            <span class="text-sm font-medium text-secondary">2022 - 현재</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">비전공자 및 예비 개발자를 대상으로 C언어, RTOS, 마이크로컨트롤러 제어 실무 강의 진행. 수료생 취업률 80% 달성.</p>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">교육/강의</span>
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">STM32</span>
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">Mentoring</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 3 -->
+                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active reveal">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 bg-blue-400 text-slate-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10">
+                        <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                    </div>
+                    <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-xl text-white">중소기업 펌웨어 구조 개선 컨설팅</h3>
+                            <span class="text-sm font-medium text-blue-400">2021 - 2022</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">기존 레거시 스파게티 코드를 모듈화하고 FreeRTOS 기반으로 마이그레이션하여 시스템 안정성 40% 향상 및 유지보수 비용 절감.</p>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">Consulting</span>
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">FreeRTOS</span>
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">Refactoring</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 4 -->
+                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active reveal">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 bg-gray-400 text-slate-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10">
+                        <i data-lucide="cpu" class="w-4 h-4"></i>
+                    </div>
+                    <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-xl text-white">IoT 기반 스마트팜 센서 노드 개발</h3>
+                            <span class="text-sm font-medium text-gray-400">2019 - 2021</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">다양한 환경 센서(온습도, CO2) 데이터를 수집하고 Wi-Fi/BLE를 통해 서버로 전송하는 저전력 엣지 디바이스 개발.</p>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">ESP32</span>
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">Low Power</span>
+                            <span class="text-xs text-slate-300 bg-slate-700 px-2 py-1 rounded">IoT</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-8 md:p-12 rounded-3xl border border-slate-700 shadow-2xl reveal">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Let's <span class="text-gradient">Work Together</span></h2>
+                    <p class="text-gray-400">기술 컨설팅, 프로젝트 협업, 강연 문의 등 언제든 환영합니다.</p>
+                </div>
+
+                <form id="contactForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-400 mb-2">이름 / 소속</label>
+                            <input type="text" id="name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="홍길동 / OO기업">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-400 mb-2">이메일</label>
+                            <input type="email" id="email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="email@example.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="subject" class="block text-sm font-medium text-gray-400 mb-2">문의 유형</label>
+                        <select id="subject" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors appearance-none">
+                            <option>기술 컨설팅 의뢰</option>
+                            <option>강의/강연 섭외</option>
+                            <option>프로젝트 협업</option>
+                            <option>기타 문의</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-400 mb-2">내용</label>
+                        <textarea id="message" rows="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none" placeholder="문의하실 내용을 자유롭게 적어주세요."></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-5 h-5"></i> 메시지 보내기
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between">
+            <div class="mb-4 md:mb-0">
+                <span class="font-bold text-xl tracking-tighter text-white">DEV<span class="text-primary">.</span>[인선미]</span>
+                <p class="text-gray-500 text-sm mt-2">© 2026 Embedded Developer Portfolio. All rights reserved.</p>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <i data-lucide="github" class="w-6 h-6"></i>
+                    <span class="sr-only">GitHub</span>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-[#0A66C2] transition-colors">
+                    <i data-lucide="linkedin" class="w-6 h-6"></i>
+                    <span class="sr-only">LinkedIn</span>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                    <i data-lucide="mail" class="w-6 h-6"></i>
+                    <span class="sr-only">Email</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Navbar blur effect on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                nav.classList.add('bg-slate-900/90', 'backdrop-blur-md', 'border-b', 'border-slate-800');
+            } else {
+                nav.classList.remove('bg-slate-900/90', 'backdrop-blur-md', 'border-b', 'border-slate-800');
+            }
+        });
+
+        // Typing Effect
+        const words = ["임베디드", "컨설턴트", "IT 강사", "로봇 제어"];
+        let wordIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingElement = document.getElementById("typing-text");
+
+        function typeEffect() {
+            const currentWord = words[wordIndex];
+            
+            if (isDeleting) {
+                typingElement.textContent = currentWord.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingElement.textContent = currentWord.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 100 : 200;
+
+            if (!isDeleting && charIndex === currentWord.length) {
+                typeSpeed = 2000; // Pause at end of word
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                wordIndex = (wordIndex + 1) % words.length;
+                typeSpeed = 500; // Pause before new word
+            }
+
+            setTimeout(typeEffect, typeSpeed);
+        }
+        
+        // Start typing effect
+        setTimeout(typeEffect, 1000);
+
+        // Scroll Reveal Animation
+        function reveal() {
+            const reveals = document.querySelectorAll(".reveal");
+            for (let i = 0; i < reveals.length; i++) {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveals[i].getBoundingClientRect().top;
+                const elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal(); // Trigger on load
+
+        // Form Submission Prevention (Demo)
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5"></i> 전송 완료!';
+            btn.classList.add('bg-secondary', 'hover:bg-green-600');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-secondary', 'hover:bg-green-600');
+                this.reset();
+                lucide.createIcons();
+            }, 3000);
+        });
+
+        // ==========================================
+        // Interactive Background (Node Network)
+        // ==========================================
+        const canvas = document.getElementById('network-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        const mouse = { x: null, y: null, radius: 150 };
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', () => {
+            initCanvas();
+            createParticles();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+        
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1;
+                this.vy = (Math.random() - 0.5) * 1;
+                this.size = Math.random() * 2 + 1;
+            }
+
+            update() {
+                if (this.x > width || this.x < 0) this.vx = -this.vx;
+                if (this.y > height || this.y < 0) this.vy = -this.vy;
+                
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = '#0ea5e9'; // Primary color
+                ctx.fill();
+            }
+        }
+
+        function createParticles() {
+            particles = [];
+            let numberOfParticles = (width * height) / 15000; // Adjust density based on screen
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(14, 165, 233, ${1 - distance/120})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+
+                // Interactive with mouse
+                if (mouse.x != null) {
+                    const dxMouse = particles[i].x - mouse.x;
+                    const dyMouse = particles[i].y - mouse.y;
+                    const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+                    
+                    if (distanceMouse < mouse.radius) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(16, 185, 129, ${1 - distanceMouse/mouse.radius})`; // Secondary color
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initCanvas();
+        createParticles();
+        animateParticles();
+    </script>
+</body>
+</html>
